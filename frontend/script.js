@@ -13,43 +13,38 @@ async function fetchVideo() {
     return;
   }
 
-  const url = "https://porn-xnxx-api.p.rapidapi.com/search";
+  const url = "http://localhost:3000/api/search";
 
-  const options = {
-    method: "POST",
-    headers: {
-      "x-rapidapi-key": "",
-      "x-rapidapi-host": "porn-xnxx-api.p.rapidapi.com",
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      q: query
-    })
-  };
+  try { 
 
-  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
 
-    const response = await fetch(url, options);
+      body: JSON.stringify({ query })
+    });
 
     if (!response.ok) {
       const err = await response.text();
       console.log("Server error:", err);
+      alert("Server error");
       return;
     }
 
     const data = await response.json();
 
-    const resultsDiv = document.getElementById("results");
+   
 
+    const resultsDiv = document.getElementById("results");
     resultsDiv.innerHTML = "";
 
-    console.log("Full API response:", data);
-
     const videos = data.results || data.videos || data;
-    
+
     if (!Array.isArray(videos)) {
       console.log("Available properties:", Object.keys(data));
-      alert("Could not find videos in response. Check console for details.");
+      alert("Unexpected API format");
       return;
     }
 
@@ -59,10 +54,10 @@ async function fetchVideo() {
       card.className = "card";
 
       card.innerHTML = `
-        <img src="${video.thumbnail}" />
-        <h3>${video.title}</h3>
-        <p>⏱ ${video.duration}</p>
-        <p>👁 ${video.views}</p>
+        <img src="${video.thumbnail}" alt="thumbnail" />
+        <h3>${video.title || "No title"}</h3>
+        <p>⏱ ${video.duration || "N/A"}</p>
+        <p>👁 ${video.views || "N/A"}</p>
         <a href="${video.video_link}" target="_blank">
           Watch
         </a>
@@ -73,5 +68,6 @@ async function fetchVideo() {
 
   } catch (e) {
     console.error("Error:", e);
+    alert("Network error");
   }
 }
